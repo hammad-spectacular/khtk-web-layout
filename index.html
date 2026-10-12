@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Khattak Academy – Pakistan's premier interactive learning academy. Turn the 3D book to explore our curriculum, Node.js lab, faculty, and admissions." />
+    <title>Khattak Academy | Interactive 3D Learning Book</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- ── Ambient 3D Three.js Canvas (background particles) ── -->
+    <canvas id="main-canvas"></canvas>
+    <!-- ── School Objects 3D Canvas (in front of particles, behind book) ── -->
+    <canvas id="school-canvas"></canvas>
+
+    <!-- ── Header Navigation Bar ── -->
+    <header id="site-header">
+      <div class="header-left">
+        <div class="brand-crest" id="nav-home-btn" title="Back to Front Cover">
+          <span class="crest-icon">🏛️</span>
+          <div class="brand-text">
+            <span class="brand-name">KHATTAK ACADEMY</span>
+            <span class="brand-tagline">Scholarly Excellence &bull; Est. 2024</span>
+          </div>
+        </div>
+        <div class="status-badge">
+          <span class="pulse-dot"></span>
+          <span>Admissions Open 2026</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Sound FX toggle -->
+        <button id="sound-toggle" class="control-btn" aria-label="Toggle Page Turning Audio" title="Toggle Page Flip Sound">
+          <span class="sound-icon" id="sound-icon-on">🔊</span>
+          <span class="sound-icon" id="sound-icon-off" style="display:none">🔇</span>
+          <span class="btn-text">Sound: ON</span>
+        </button>
+
+        <!-- Fast Navigation Shortcuts -->
+        <button id="btn-jump-first" class="control-btn" title="Jump to Front Cover">
+          <span>⏮ Front</span>
+        </button>
+        <button id="btn-jump-last" class="control-btn accent-glow" title="Fast-Forward All Pages to End">
+          <span>⏭ End Page</span>
+        </button>
+
+        <!-- Light / Dark Theme Toggle -->
+        <button id="theme-toggle" class="control-btn theme-btn" aria-label="Toggle Light/Dark Theme" title="Toggle Theme">
+          <span id="icon-sun" class="theme-icon" style="display:none">☀️ Light</span>
+          <span id="icon-moon" class="theme-icon">🌙 Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Top Progress Banner ── -->
+    <div id="page-progress-bar-container">
+      <div id="page-progress-bar"></div>
+    </div>
+
+    <!-- ── Main 3D Book Experience Viewport ── -->
+    <main id="book-viewport">
+      <div id="book-stage">
+        <!-- 3D Book Container -->
+        <div id="book-wrapper" class="state-cover">
+          <!-- Ribbon Bookmark hanging from spine -->
+          <div class="ribbon-bookmark"></div>
+
+          <!-- Book Shadow on Table -->
+          <div class="book-depth-shadow"></div>
+
+          <!-- ══════ SPREAD 0: FRONT COVER ══════ -->
+          <section id="spread-cover" class="book-cover-container active">
+            <div class="cover-hardbound">
+              <div class="cover-leather-pattern"></div>
+              <div class="cover-gold-border">
+                <div class="cover-inner-frame">
+                  <div class="cover-corner top-left"></div>
+                  <div class="cover-corner top-right"></div>
+                  <div class="cover-corner bottom-left"></div>
+                  <div class="cover-corner bottom-right"></div>
+
+                  <div class="cover-emboss-logo">
+                    <span class="logo-shield">⚜️</span>
+                  </div>
+
+                  <h1 class="cover-title">KHATTAK ACADEMY</h1>
+                  <p class="cover-latin">VERITAS &bull; SAPIENTIA &bull; INNOVATIO</p>
+                  
+                  <div class="cover-gold-divider"></div>
+                  
+                  <p class="cover-subtitle">THE COMPLETE CODEX OF MODERN LEARNING</p>
+                  <p class="cover-edition">Volume III &bull; Node.js &bull; Computing &bull; Sciences &bull; Arts</p>
+
+                  <div class="cover-action-box">
+                    <button id="btn-open-book" class="book-cta-btn">
+                      <span>OPEN BOOK &rarr;</span>
+                    </button>
+                    <span class="cover-scroll-hint">Or scroll down with mouse wheel to turn pages</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════ SPREAD 1: PAGES 1 & 2 (Overview & Disciplines) ══════ -->
+          <section id="spread-1" class="book-open-spread">
+            <!-- Left Page: Academy Overview -->
+            <div class="book-page left-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="chapter-label">Chapter I &bull; Foundation</span>
+                  <span class="page-num">01</span>
+                </div>
+                <div class="page-body">
+                  <div class="seal-header">
+                    <span class="seal-icon">🏛️</span>
+                    <div>
+                      <h2 class="page-heading">The Khattak Academy</h2>
+                      <span class="page-subheading">Pioneering Education for Tomorrow</span>
+                    </div>
+                  </div>
+
+                  <p class="page-paragraph dropcap">
+                    Established with the profound conviction that world-class education belongs to every aspiring mind, Khattak Academy delivers an uncompromising curriculum spanning modern computation, fundamental sciences, and expressive arts.
+                  </p>
+
+                  <div class="stats-grid">
+                    <div class="stat-card">
+                      <span class="stat-value">250+</span>
+                      <span class="stat-title">Master Courses</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-value">54,000+</span>
+                      <span class="stat-title">Active Scholars</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-value">98.4%</span>
+                      <span class="stat-title">Career Success</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-value">4.95★</span>
+                      <span class="stat-title">Academic Rating</span>
+                    </div>
+                  </div>
+
+                  <div class="honor-code-box">
+                    <strong>The Scholar's Pledge:</strong>
+                    <em>"To question with curiosity, build with integrity, and master skills that uplift communities worldwide."</em>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Khattak Academy &bull; Prolegomena</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Central Spine Binding -->
+            <div class="spine-divider"></div>
+
+            <!-- Right Page: Academic Disciplines Explorer -->
+            <div class="book-page right-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="page-num">02</span>
+                  <span class="chapter-label">Curriculum Fields</span>
+                </div>
+                <div class="page-body">
+                  <h3 class="page-heading">Disciplines & Faculties</h3>
+                  <p class="page-paragraph-sm">Select an academic field to examine active master paths:</p>
+
+                  <!-- Filter Tabs -->
+                  <div class="discipline-tabs" id="discipline-tabs">
+                    <button class="d-tab active" data-cat="tech">💻 Computing & Node</button>
+                    <button class="d-tab" data-cat="science">🧬 Sciences</button>
+                    <button class="d-tab" data-cat="math">📐 Mathematics</button>
+                    <button class="d-tab" data-cat="arts">🎨 Arts & Design</button>
+                  </div>
+
+                  <!-- Course List Container -->
+                  <div class="discipline-content" id="discipline-content">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Turn page or scroll to proceed to Lab &rarr;</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════ SPREAD 2: PAGES 3 & 4 (Featured Courses & Node.js Lab) ══════ -->
+          <section id="spread-2" class="book-open-spread">
+            <!-- Left Page: Flagship Programs -->
+            <div class="book-page left-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="chapter-label">Chapter II &bull; Flagships</span>
+                  <span class="page-num">03</span>
+                </div>
+                <div class="page-body">
+                  <h2 class="page-heading">Featured Programs</h2>
+                  <span class="page-subheading">Intensive career-defining paths with certification</span>
+
+                  <div class="flagship-list">
+                    <div class="flagship-card">
+                      <div class="fc-badge gold">HIGHEST ENROLLMENT</div>
+                      <div class="fc-top">
+                        <span class="fc-icon">⚡</span>
+                        <div>
+                          <h4 class="fc-title">Node.js Enterprise Architecture</h4>
+                          <span class="fc-meta">12 Weeks &bull; Microservices &bull; Distributed Systems</span>
+                        </div>
+                      </div>
+                      <p class="fc-desc">Master asynchronous I/O, event loops, clustering, Fastify, Redis caching, and real-time WebSockets.</p>
+                      <div class="fc-footer">
+                        <span class="fc-instructor">Led by Dr. Ahmed Khattak</span>
+                        <span class="fc-tuition">Full Scholarship Avail.</span>
+                      </div>
+                    </div>
+
+                    <div class="flagship-card">
+                      <div class="fc-badge cyan">TOP RATED</div>
+                      <div class="fc-top">
+                        <span class="fc-icon">🧠</span>
+                        <div>
+                          <h4 class="fc-title">Applied AI & Neural Networks</h4>
+                          <span class="fc-meta">16 Weeks &bull; PyTorch &bull; LLM Fine-Tuning</span>
+                        </div>
+                      </div>
+                      <p class="fc-desc">Build transformer architectures, autonomous agent workflows, and production model pipelines.</p>
+                      <div class="fc-footer">
+                        <span class="fc-instructor">Led by Sarah Al-Rashid</span>
+                        <span class="fc-tuition">Merit Grant</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Faculty Accreditation &bull; ISO 9001 Certified</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Central Spine Binding -->
+            <div class="spine-divider"></div>
+
+            <!-- Right Page: Live Node.js & Web Lab -->
+            <div class="book-page right-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="page-num">04</span>
+                  <span class="chapter-label">Interactive Node.js Lab</span>
+                </div>
+                <div class="page-body">
+                  <div class="lab-title-row">
+                    <div>
+                      <h3 class="page-heading">The Node.js Study Lab</h3>
+                      <span class="page-subheading">Live student terminal & code execution playground</span>
+                    </div>
+                    <span class="lab-status">● Sandbox Active</span>
+                  </div>
+
+                  <!-- Code Playground Tabs -->
+                  <div class="lab-tabs">
+                    <button class="lab-tab active" data-snippet="server">server.js (HTTP)</button>
+                    <button class="lab-tab" data-snippet="async">stream_worker.js</button>
+                    <button class="lab-tab" data-snippet="academy">student_grades.js</button>
+                  </div>
+
+                  <!-- Code Editor Box -->
+                  <div class="code-editor-box">
+                    <div class="editor-header">
+                      <div class="window-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                      </div>
+                      <span class="editor-filename" id="editor-filename">server.js</span>
+                      <button id="btn-run-code" class="run-code-btn" onclick="window.runCurrentScript && window.runCurrentScript()">
+                        <span>▶ Run Script</span>
+                      </button>
+                    </div>
+                    <pre class="code-pre"><code id="code-display" class="language-javascript"></code></pre>
+                  </div>
+
+                  <!-- Output Console -->
+                  <div class="lab-console-box">
+                    <div class="console-header">
+                      <span>TERMINAL OUTPUT (node v22.14.0)</span>
+                      <button id="btn-clear-console" class="console-clear">Clear</button>
+                    </div>
+                    <div id="console-output" class="console-content">
+                      <span class="sys-msg">&gt; Click "Run Script" above to execute this Node.js program in real time...</span>
+                    </div>
+                  </div>
+
+                  <!-- Jump to End Button Callout -->
+                  <div class="lab-fast-hint">
+                    <span>Testing fast scroll?</span>
+                    <button id="lab-btn-fast-forward" class="btn-text-accent">
+                      ⏩ Fast-forward all pages to the end &rarr;
+                    </button>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Khattak Academy Interactive Engineering Console</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════ SPREAD 3: PAGES 5 & 6 (Faculty & Testimonials) ══════ -->
+          <section id="spread-3" class="book-open-spread">
+            <!-- Left Page: Esteemed Faculty -->
+            <div class="book-page left-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="chapter-label">Chapter III &bull; Mentors</span>
+                  <span class="page-num">05</span>
+                </div>
+                <div class="page-body">
+                  <h2 class="page-heading">Faculty & Fellows</h2>
+                  <span class="page-subheading">Learn directly from industry pioneers & decorated researchers</span>
+
+                  <div class="faculty-grid">
+                    <div class="faculty-card">
+                      <div class="f-avatar">👨‍🏫</div>
+                      <div class="f-info">
+                        <h4 class="f-name">Dr. Ahmed Khattak</h4>
+                        <span class="f-role">Dean of Computational Sciences</span>
+                        <p class="f-bio">PhD Stanford University. 18 years shaping distributed distributed systems & high-throughput architectures.</p>
+                      </div>
+                    </div>
+
+                    <div class="faculty-card">
+                      <div class="f-avatar">👩‍💻</div>
+                      <div class="f-info">
+                        <h4 class="f-name">Sarah Al-Rashid</h4>
+                        <span class="f-role">Chair of Software Systems</span>
+                        <p class="f-bio">Principal Architect, Ex-V8 Runtime contributor. Specializes in Node.js event mechanics & concurrency.</p>
+                      </div>
+                    </div>
+
+                    <div class="faculty-card">
+                      <div class="f-avatar">👨‍🔬</div>
+                      <div class="f-info">
+                        <h4 class="f-name">Prof. Tariq Hussain</h4>
+                        <span class="f-role">Senior Fellow, Quantum Mechanics</span>
+                        <p class="f-bio">Published author of 30+ papers in particle simulation and quantum computing algorithms.</p>
+                      </div>
+                    </div>
+
+                    <div class="faculty-card">
+                      <div class="f-avatar">👩‍🎨</div>
+                      <div class="f-info">
+                        <h4 class="f-name">Zara Khan</h4>
+                        <span class="f-role">Director of Digital Design & HCI</span>
+                        <p class="f-bio">Global Design Lead with patents in immersive interaction design and spatial computing.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>All faculty hold terminal degrees in their domains</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Central Spine Binding -->
+            <div class="spine-divider"></div>
+
+            <!-- Right Page: Testimonials & Voices -->
+            <div class="book-page right-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="page-num">06</span>
+                  <span class="chapter-label">Scholar Testimonials</span>
+                </div>
+                <div class="page-body">
+                  <h3 class="page-heading">Scholar Voices</h3>
+                  <span class="page-subheading">Stories of transformation from our global alumni</span>
+
+                  <div class="testimonials-stack" id="testimonials-stack">
+                    <div class="t-card">
+                      <div class="t-stars">★★★★★</div>
+                      <p class="t-quote">
+                        "The Node.js and distributed systems training at Khattak Academy is unmatched. Within 4 months of completing the curriculum, I received offers from three international tech firms."
+                      </p>
+                      <div class="t-author">
+                        <span class="t-avatar">👨‍🎓</span>
+                        <div>
+                          <strong>Hamza Durrani</strong>
+                          <span class="t-meta">Backend Engineer &bull; Batch 2025</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="t-card">
+                      <div class="t-stars">★★★★★</div>
+                      <p class="t-quote">
+                        "I had zero prior coding background. The step-by-step guidance, lab sandbox, and personal mentoring from Dr. Khattak gave me the confidence to build my own funded AI venture."
+                      </p>
+                      <div class="t-author">
+                        <span class="t-avatar">👩‍🎓</span>
+                        <div>
+                          <strong>Fatima Zahra</strong>
+                          <span class="t-meta">AI Product Founder &bull; Batch 2025</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="t-card">
+                      <div class="t-stars">★★★★★</div>
+                      <p class="t-quote">
+                        "The mathematical depth combined with real coding exercises creates a superpower. I finally understand the foundational physics behind cutting-edge neural models."
+                      </p>
+                      <div class="t-author">
+                        <span class="t-avatar">🧑‍💻</span>
+                        <div>
+                          <strong>Bilal Tariq</strong>
+                          <span class="t-meta">Data Scientist &bull; Batch 2024</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Turn page or scroll to proceed to Admissions &rarr;</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════ SPREAD 4: PAGES 7 & 8 (Admissions & Enrollment Portal) ══════ -->
+          <section id="spread-4" class="book-open-spread">
+            <!-- Left Page: Scholarship & Tuition -->
+            <div class="book-page left-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="chapter-label">Chapter IV &bull; Admissions</span>
+                  <span class="page-num">07</span>
+                </div>
+                <div class="page-body">
+                  <h2 class="page-heading">Scholarship & Entry</h2>
+                  <span class="page-subheading">Financial accessibility is our core foundational tenet</span>
+
+                  <div class="scholarship-box">
+                    <div class="sc-badge">EQUITY ENDOWMENT</div>
+                    <h4>100% Need-Blind Admissions</h4>
+                    <p>No scholar is ever turned away due to financial constraints. Over 65% of all enrolled students receive merit or need-based subsidies from our alumni endowment fund.</p>
+                  </div>
+
+                  <div class="admission-steps">
+                    <div class="a-step">
+                      <span class="step-num">1</span>
+                      <div>
+                        <strong>Submit Application</strong>
+                        <span>Fill the formal registration dossier on the facing page.</span>
+                      </div>
+                    </div>
+                    <div class="a-step">
+                      <span class="step-num">2</span>
+                      <div>
+                        <strong>Academic Review</strong>
+                        <span>Our admissions committee evaluates goals within 48 hours.</span>
+                      </div>
+                    </div>
+                    <div class="a-step">
+                      <span class="step-num">3</span>
+                      <div>
+                        <strong>Direct Orientation</strong>
+                        <span>Receive instant codex credentials & mentor allocation.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Accredited Worldwide &bull; Verified Diplomas</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Central Spine Binding -->
+            <div class="spine-divider"></div>
+
+            <!-- Right Page: Application Dossier Form -->
+            <div class="book-page right-page">
+              <div class="page-paper">
+                <div class="page-header">
+                  <span class="page-num">08</span>
+                  <span class="chapter-label">Dossier Submission</span>
+                </div>
+                <div class="page-body">
+                  <h3 class="page-heading">Enrollment Dossier</h3>
+                  <span class="page-subheading">Secure your seat in the Fall 2026 Academic Cohort</span>
+
+                  <form id="enrollment-form" class="academy-form">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="student-name">Full Name</label>
+                        <input type="text" id="student-name" required placeholder="e.g. Hammad Khattak" />
+                      </div>
+                      <div class="form-group">
+                        <label for="student-email">Academic Email</label>
+                        <input type="email" id="student-email" required placeholder="scholar@khattak.edu" />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="chosen-track">Field of Study</label>
+                      <select id="chosen-track" required>
+                        <option value="node">Node.js Enterprise & Systems Architecture</option>
+                        <option value="ai">Applied Artificial Intelligence & Deep Learning</option>
+                        <option value="physics">Theoretical Physics & Quantum Dynamics</option>
+                        <option value="math">Higher Pure & Applied Mathematics</option>
+                        <option value="design">Human-Computer Interaction & Digital Arts</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="motivation-statement">Personal Academic Goal</label>
+                      <textarea id="motivation-statement" rows="2" placeholder="Briefly describe what you aim to master and build..."></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-dossier-btn" id="btn-submit-app">
+                      <span>AFFIX SEAL & SUBMIT DOSSIER &rarr;</span>
+                    </button>
+                  </form>
+
+                  <div id="form-success-banner" class="form-success-message" style="display:none">
+                    <span class="success-icon">📜</span>
+                    <div class="success-text">
+                      <strong>Application Formally Affixed!</strong>
+                      <span>Welcome to Khattak Academy. Scroll down to view your graduation seal!</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="page-footer">
+                  <span>Official Registrar Seal &bull; Khattak Academy</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════ SPREAD 5: BACK COVER (Graduation & Completion) ══════ -->
+          <section id="spread-back" class="book-cover-container">
+            <div class="cover-hardbound back-cover">
+              <div class="cover-leather-pattern"></div>
+              <div class="cover-gold-border">
+                <div class="cover-inner-frame">
+                  <div class="back-emblem">🏆</div>
+                  <h2 class="back-title">THE CODEX CONCLUDES</h2>
+                  <p class="back-subtitle">Your journey of infinite mastery begins here.</p>
+
+                  <div class="diploma-preview">
+                    <div class="diploma-crest">🏛️</div>
+                    <span class="diploma-title">KHATTAK ACADEMY CHARTER</span>
+                    <p class="diploma-body">
+                      "Awarded to the persistent explorer who turned through each folio of knowledge with unrelenting determination."
+                    </p>
+                    <div class="diploma-signatures">
+                      <div class="sig-block">
+                        <span class="sig-line">Dr. Ahmed Khattak</span>
+                        <small>Chancellor</small>
+                      </div>
+                      <div class="sig-seal">★ OFFICIAL SEAL ★</div>
+                      <div class="sig-block">
+                        <span class="sig-line">Sarah Al-Rashid</span>
+                        <small>Dean of Faculty</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="back-actions">
+                    <button id="btn-restart-book" class="book-cta-btn secondary">
+                      <span>↺ TURN BACK TO FRONT COVER</span>
+                    </button>
+                    <a href="mailto:admissions@khattakacademy.edu" class="contact-link">
+                      Contact Registrar Office: info@khattakacademy.edu
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Dynamic 3D Turning Page Leaves (Animates realistic curl across) -->
+          <div id="page-flipper" class="page-flipper">
+            <div class="flipper-face flipper-front">
+              <div class="page-paper flipper-paper"></div>
+            </div>
+            <div class="flipper-face flipper-back">
+              <div class="page-paper flipper-paper"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ── Bottom Navigation Dock ── -->
+    <footer id="book-nav-dock">
+      <div class="dock-inner">
+        <!-- Previous Page Button -->
+        <button id="btn-prev-page" class="nav-arrow-btn" aria-label="Previous Page" title="Previous Page">
+          <span class="arrow-sym">&larr;</span>
+          <span class="btn-label">Prev Page</span>
+        </button>
+
+        <!-- Spread Dots & Labels -->
+        <nav class="spread-indicator-group" aria-label="Book page navigation">
+          <button class="spread-dot active" data-spread="0" title="Front Cover">
+            <span class="dot-ring"></span>
+            <span class="dot-caption">Cover</span>
+          </button>
+          <button class="spread-dot" data-spread="1" title="Overview & Disciplines (Pages 1 & 2)">
+            <span class="dot-ring"></span>
+            <span class="dot-caption">Ch. 1 (Pg 1-2)</span>
+          </button>
+          <button class="spread-dot" data-spread="2" title="Featured Courses & Node.js Lab (Pages 3 & 4)">
+            <span class="dot-ring"></span>
+            <span class="dot-caption">Ch. 2 (Pg 3-4)</span>
+          </button>
+          <button class="spread-dot" data-spread="3" title="Faculty & Testimonials (Pages 5 & 6)">
+            <span class="dot-ring"></span>
+            <span class="dot-caption">Ch. 3 (Pg 5-6)</span>
+          </button>
+          <button class="spread-dot" data-spread="4" title="Admissions & Application (Pages 7 & 8)">
+            <span class="dot-ring"></span>
+            <span class="dot-caption">Ch. 4 (Pg 7-8)</span>
+          </button>
+          <button class="spread-dot" data-spread="5" title="Back Cover & Diploma">
+            <span class="dot-ring"></span>
+            <span class="dot-caption">Back Cover</span>
+          </button>
+        </nav>
+
+        <!-- Next Page Button -->
+        <button id="btn-next-page" class="nav-arrow-btn accent" aria-label="Next Page" title="Next Page">
+          <span class="btn-label">Next Page</span>
+          <span class="arrow-sym">&rarr;</span>
+        </button>
+      </div>
+
+      <!-- Quick Scroll Hint -->
+      <div class="dock-hints">
+        <span>💡 Tip: Scroll mouse wheel, drag, or press Left / Right arrow keys to turn pages</span>
+      </div>
+    </footer>
+
+    <!-- ── Tall Virtual Scroll Track to bridge scrollbar & mousewheel ── -->
+    <div id="virtual-scroll-track"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
