@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khattak Academy | 3D Interactive Codex</title>
+    <!-- Optimized Google Fonts: Amiri & Cormorant Garamond -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Cinzel:wght@700&family=Outfit:wght@400;500;600&family=Kalam:wght@300;400;700&family=Great+Vibes&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- ── Static Background Scene (Merged into 1 GPU Layer) ── -->
+    <div class="bg-scene">
+      <div class="bg-gradient-base"></div>
+
+      <!-- Static pre-rendered soft spotlights (Crossfaded via opacity only) -->
+      <div class="bg-spotlight spot-cool" id="spotCool"></div>
+      <div class="bg-spotlight spot-warm" id="spotWarm"></div>
+
+      <!-- Merged Single Static SVG: 8-Point Stars + Academic Line Art -->
+      <svg class="bg-static-layer" id="bgStaticLayer" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="islamicStarPattern" width="160" height="160" patternUnits="userSpaceOnUse">
+            <polygon points="80,14 100,60 146,80 100,100 80,146 60,100 14,80 60,60" fill="none" stroke="var(--foil-2)" stroke-width="0.8" opacity="0.3" />
+            <polygon points="80,34 94,66 126,80 94,94 80,126 66,94 34,80 66,66" fill="none" stroke="var(--foil-2)" stroke-width="0.6" opacity="0.2" />
+            <circle cx="80" cy="80" r="22" fill="none" stroke="var(--foil-2)" stroke-width="0.5" opacity="0.15" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#islamicStarPattern)" opacity="0.05" />
+
+        <!-- Static Background Glyphs at low opacity -->
+        <g opacity="0.06">
+          <text x="120" y="240" fill="var(--foil-2)" font-family="'Times New Roman', serif" font-style="italic" font-size="70">&pi;</text>
+          <text x="260" y="180" fill="var(--bg-symbol-color)" font-family="'Times New Roman', serif" font-size="22">&int; e&minus;x&sup2; dx = &radic;&pi;</text>
+          <text x="1350" y="260" fill="var(--foil-2)" font-family="'Times New Roman', serif" font-style="italic" font-size="70">&sum;</text>
+          <text x="1200" y="380" fill="var(--bg-symbol-color)" font-family="'Times New Roman', serif" font-size="22">E = mc&sup2;</text>
+          <text x="180" y="780" fill="var(--foil-2)" font-family="'Times New Roman', serif" font-size="45">&radic;&infin;</text>
+          <text x="1320" y="760" fill="var(--bg-symbol-color)" font-family="'Times New Roman', serif" font-size="22">&nabla; &times; B = &mu;&sub0;J</text>
+        </g>
+      </svg>
+
+      <!-- Floating Golden Dust Canvas (Capped at 30, no shadowBlur) -->
+      <canvas id="dustCanvas" class="dust-canvas"></canvas>
+      <!-- Subtle tiled 200x200 noise grain layer (no SVG filters) -->
+      <div class="bg-grain" id="bgGrain"></div>
+      <div class="bg-vignette"></div>
+    </div>
+
+    <!-- ── PART 2: FIXED ACADEMY HEADER (top-right, z-index 110) ── -->
+    <div class="academy-header" id="academyHeader" aria-label="Khattak Academy">
+      <svg class="header-logo" viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Open book logomark -->
+        <path d="M14 4 C11 3 7 3.5 4 5 L4 20 C7 18.5 11 18 14 19 C17 18 21 18.5 24 20 L24 5 C21 3.5 17 3 14 4Z" stroke="var(--foil-2)" stroke-width="1.2" fill="none"/>
+        <line x1="14" y1="4" x2="14" y2="19" stroke="var(--foil-2)" stroke-width="1"/>
+        <line x1="7" y1="7" x2="12" y2="6.5" stroke="var(--foil-2)" stroke-width="0.7" opacity="0.7"/>
+        <line x1="7" y1="10" x2="12" y2="9.5" stroke="var(--foil-2)" stroke-width="0.7" opacity="0.7"/>
+        <line x1="16" y1="6.5" x2="21" y2="7" stroke="var(--foil-2)" stroke-width="0.7" opacity="0.7"/>
+        <line x1="16" y1="9.5" x2="21" y2="10" stroke="var(--foil-2)" stroke-width="0.7" opacity="0.7"/>
+      </svg>
+      <div class="header-text">
+        <span class="header-name">Khattak Academy</span>
+        <span class="header-line"></span>
+      </div>
+    </div>
+
+    <!-- ── FIX 2: FIXED QUOTES OVERLAY LAYER (ON TOP OF BOOK) ── -->
+    <header class="quotes-top-overlay" id="quotesOverlay" aria-live="polite">
+      <!-- Quote 1: Surah Al-Alaq 96:1 -->
+      <div class="top-quote-slot" id="quote1">
+        <div class="arabic-calligraphy" dir="rtl" lang="ar">اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ</div>
+        <div class="quote-translation">
+          <em>"Read in the name of your Lord who created."</em>
+          <span class="quote-citation">Surah Al-Alaq, 96:1</span>
+        </div>
+      </div>
+
+      <!-- Quote 2: Surah Ta-Ha 20:114 -->
+      <div class="top-quote-slot" id="quote2">
+        <div class="arabic-calligraphy" dir="rtl" lang="ar">رَبِّ زِدْنِي عِلْمًا</div>
+        <div class="quote-translation">
+          <em>"My Lord, increase me in knowledge."</em>
+          <span class="quote-citation">Surah Ta-Ha, 20:114</span>
+        </div>
+      </div>
+
+      <!-- Quote 3: Hadith Sunan Ibn Majah -->
+      <div class="top-quote-slot" id="quote3">
+        <div class="quote-translation-lg">
+          <em>"Seeking knowledge is an obligation upon every Muslim."</em>
+          <span class="quote-citation">Hadith, Sunan Ibn Majah</span>
+        </div>
+      </div>
+
+      <!-- Quote 4: Line of Scholars (Names only) -->
+      <div class="top-quote-slot" id="quote4">
+        <div class="scholars-line">
+          <em>Al-Khwarizmi &bull; Ibn Sina &bull; Fatima al-Fihri &bull; Al-Farabi &bull; Allama Iqbal &bull; Sir Syed Ahmad Khan</em>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── PART 1: FLOATING 3D SCHOOL OBJECTS ── -->
+    <div class="floating-objects-layer" id="floatingObjectsLayer" aria-hidden="true">
+
+      <!-- LEFT SIDE OBJECTS -->
+
+      <!-- Object 1: Blackboard (Slate surface, wood frame, chalk ledge, chalks & eraser) -->
+      <div class="obj-wrapper obj-left" id="objBlackboard">
+        <div class="obj-shadow bb-shadow"></div>
+        <div class="obj-3d" style="transform-style:preserve-3d;">
+          <div class="bb-frame">
+            <div class="bb-face bb-front">
+              <div class="bb-chalk-text">
+                <span class="bb-line1">E = mc²</span>
+                <span class="bb-line2">a² + b² = c²</span>
+                <span class="bb-line3">∑ ∫ π</span>
+              </div>
+            </div>
+            <div class="bb-face bb-back"></div>
+            <div class="bb-face bb-top"></div>
+            <div class="bb-face bb-bottom"></div>
+            <div class="bb-face bb-side-l"></div>
+            <div class="bb-face bb-side-r"></div>
+            <div class="bb-ledge">
+              <div class="bb-chalk chalk-1"></div>
+              <div class="bb-chalk chalk-2"></div>
+              <div class="bb-eraser"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Object 2: Pencil (6-sided hexagonal body, metal ferrule, pink eraser, wood cone, graphite tip) -->
+      <div class="obj-wrapper obj-left" id="objPencil">
+        <div class="obj-shadow pencil-shadow"></div>
+        <div class="obj-3d" style="transform-style:preserve-3d;">
+          <div class="pencil-model">
+            <div class="pencil-eraser-end"></div>
+            <div class="pencil-ferrule"></div>
+            <div class="pencil-barrel">
+              <div class="hex-face hf-1"></div>
+              <div class="hex-face hf-2"></div>
+              <div class="hex-face hf-3"></div>
+              <div class="hex-face hf-4"></div>
+              <div class="hex-face hf-5"></div>
+              <div class="hex-face hf-6"></div>
+            </div>
+            <div class="pencil-cone">
+              <div class="cone-wood"></div>
+              <div class="cone-graphite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Object 3: Stack of Books (3 books with distinct colors, page edges, slight offset) -->
+      <div class="obj-wrapper obj-left" id="objBookStack">
+        <div class="obj-shadow bstack-shadow"></div>
+        <div class="obj-3d" style="transform-style:preserve-3d;">
+          <div class="book-stack">
+            <!-- Book 1 (Bottom, Crimson/Burgundy) -->
+            <div class="bs-book bs-book-1">
+              <div class="bsb-cover-top"></div>
+              <div class="bsb-cover-bottom"></div>
+              <div class="bsb-spine"></div>
+              <div class="bsb-pages-front"></div>
+              <div class="bsb-pages-side"></div>
+            </div>
+            <!-- Book 2 (Middle, Royal Navy/Sapphire) -->
+            <div class="bs-book bs-book-2">
+              <div class="bsb-cover-top"></div>
+              <div class="bsb-cover-bottom"></div>
+              <div class="bsb-spine"></div>
+              <div class="bsb-pages-front"></div>
+              <div class="bsb-pages-side"></div>
+            </div>
+            <!-- Book 3 (Top, Forest Emerald) -->
+            <div class="bs-book bs-book-3">
+              <div class="bsb-cover-top"></div>
+              <div class="bsb-cover-bottom"></div>
+              <div class="bsb-spine"></div>
+              <div class="bsb-pages-front"></div>
+              <div class="bsb-pages-side"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE OBJECTS -->
+
+      <!-- Object 4: Whiteboard (Glossy, reflection streak, brushed-aluminum frame, tray with 3 markers) -->
+      <div class="obj-wrapper obj-right" id="objWhiteboard">
+        <div class="obj-shadow wb-shadow"></div>
+        <div class="obj-3d" style="transform-style:preserve-3d;">
+          <div class="wb-frame">
+            <div class="wb-face wb-front">
+              <div class="wb-glare-streak"></div>
+              <div class="wb-text">
+                <span class="wb-blue">F = ma</span>
+                <span class="wb-red">v = u + at</span>
+                <span class="wb-black">ΔE = hν</span>
+              </div>
+            </div>
+            <div class="wb-face wb-back"></div>
+            <div class="wb-face wb-top"></div>
+            <div class="wb-face wb-bottom"></div>
+            <div class="wb-face wb-side-l"></div>
+            <div class="wb-face wb-side-r"></div>
+            <div class="wb-tray">
+              <div class="wb-marker wbm-red"><div class="marker-cap"></div><div class="marker-body"></div></div>
+              <div class="wb-marker wbm-blue"><div class="marker-cap"></div><div class="marker-body"></div></div>
+              <div class="wb-marker wbm-black"><div class="marker-cap"></div><div class="marker-body"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Object 5: Pen (Cylindrical body with gloss highlight, metal clip, and pointed nib) -->
+      <div class="obj-wrapper obj-right" id="objPen">
+        <div class="obj-shadow pen-shadow"></div>
+        <div class="obj-3d" style="transform-style:preserve-3d;">
+          <div class="pen-model">
+            <div class="pen-cylinder">
+              <div class="pen-glare"></div>
+              <div class="pen-band"></div>
+            </div>
+            <div class="pen-clip"></div>
+            <div class="pen-nib"></div>
+            <div class="pen-top-gem"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Object 6: Wooden Ruler (Beveled edges, engraved tick marks and numbers) -->
+      <div class="obj-wrapper obj-right" id="objRuler">
+        <div class="obj-shadow ruler-shadow"></div>
+        <div class="obj-3d" style="transform-style:preserve-3d;">
+          <div class="ruler-model">
+            <div class="ruler-face rf-front">
+              <div class="ruler-ticks"></div>
+            </div>
+            <div class="ruler-face rf-back"></div>
+            <div class="ruler-face rf-top"></div>
+            <div class="ruler-face rf-bottom"></div>
+            <div class="ruler-face rf-left"></div>
+            <div class="ruler-face rf-right"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Object 7: Globe with stand (Spherical gradient, meridian ring, brass bracket & turned base) -->
+      <div class="obj-wrapper obj-right" id="objGlobe">
+        <div class="obj-shadow globe-shadow"></div>
+        <div class="obj-3d globe-3d" style="transform-style:preserve-3d;">
+          <div class="globe-assembly">
+            <div class="globe-sphere">
+              <div class="globe-specular"></div>
+              <div class="globe-meridian-line"></div>
+              <div class="globe-equator-line"></div>
+            </div>
+            <div class="globe-ring"></div>
+            <div class="globe-arm"></div>
+            <div class="globe-base"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Three.js School Objects Canvas (fixed overlay, behind floating layer, pointer-events none) ── -->
+    <canvas id="school-canvas"></canvas>
+
+    <!-- ── 3D Book Viewport Stage ── -->
+    <div class="scene-container">
+      <!-- Pre-rendered Ground Contact Shadow (Animates ONLY transform scale and opacity) -->
+      <div class="book-ambient-glow" id="bookGlow"></div>
+      <div class="book-ground-shadow" id="bookShadow"></div>
+
+      <!-- Centered 3D Book Stage (Shifted down slightly to reserve top 90px band) -->
+      <div class="book-stage" id="bookStage">
+        <!-- The 3D Book Object -->
+        <div class="book" id="book">
+          <!-- Hanging Crimson Silk Ribbon Bookmark -->
+          <div class="ribbon-bookmark" id="ribbonBookmark"></div>
+
+          <!-- Outer Hardcover Overhang Rims -->
+          <div class="hardcover-backing-left" id="coverBackingLeft"></div>
+          <div class="hardcover-backing-right" id="coverBackingRight"></div>
+
+          <!-- Central Book Spine Hinged Edge -->
+          <div class="book-spine"></div>
+
+          <!-- Stacked Paper Block Edges (Transform scaleX only, no width animation) -->
+          <div class="paper-stack-left" id="stackLeft"></div>
+          <div class="paper-stack-right" id="stackRight"></div>
+          <div class="paper-stack-bottom" id="stackBottom"></div>
+
+          <!-- ══════ BASE RIGHT PAGE: SPREAD 3, RIGHT ("Our Journey") ══════ -->
+          <div class="page-base-right" id="spread3Right">
+            <div class="page-paper page-paper-right">
+              <div class="page-border-inset">
+                <div class="page-corner-ornament corner-top-left"></div>
+                <div class="page-corner-ornament corner-top-right"></div>
+                <div class="page-corner-ornament corner-bottom-left"></div>
+                <div class="page-corner-ornament corner-bottom-right"></div>
+
+                <div class="spine-gutter-shadow gutter-right"></div>
+                <div class="page-inner" id="pageContentSpread3Right"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════ TURNING LEAF 2: (Spread 2 Right / Spread 3 Left) ══════ -->
+          <div class="turning-leaf leaf-layer-2" id="pageLeaf2">
+            <!-- Front Face: Spread 2, Right Page ("Subjects We Teach") -->
+            <div class="leaf-face leaf-front">
+              <div class="page-paper page-paper-right">
+                <div class="page-border-inset">
+                  <div class="page-corner-ornament corner-top-left"></div>
+                  <div class="page-corner-ornament corner-top-right"></div>
+                  <div class="page-corner-ornament corner-bottom-left"></div>
+                  <div class="page-corner-ornament corner-bottom-right"></div>
+
+                  <div class="spine-gutter-shadow gutter-right"></div>
+                  <div class="page-inner" id="pageContentSpread2Right"></div>
+                </div>
+              </div>
+              <div class="dynamic-leaf-shadow" id="leaf2ShadowFront"></div>
+            </div>
+
+            <!-- Back Face: Spread 3, Left Page ("Why Choose Us") -->
+            <div class="leaf-face leaf-back">
+              <div class="page-paper page-paper-left">
+                <div class="page-border-inset">
+                  <div class="page-corner-ornament corner-top-left"></div>
+                  <div class="page-corner-ornament corner-top-right"></div>
+                  <div class="page-corner-ornament corner-bottom-left"></div>
+                  <div class="page-corner-ornament corner-bottom-right"></div>
+
+                  <div class="spine-gutter-shadow gutter-left"></div>
+                  <div class="page-inner" id="pageContentSpread3Left"></div>
+                </div>
+              </div>
+              <div class="dynamic-leaf-shadow" id="leaf2ShadowBack"></div>
+            </div>
+          </div>
+
+          <!-- ══════ TURNING LEAF 1: (Spread 1 Right / Spread 2 Left) ══════ -->
+          <div class="turning-leaf leaf-layer-1" id="pageLeaf1">
+            <!-- Front Face: Spread 1, Right Page ("How We Perform") -->
+            <div class="leaf-face leaf-front">
+              <div class="page-paper page-paper-right">
+                <div class="page-border-inset">
+                  <div class="page-corner-ornament corner-top-left"></div>
+                  <div class="page-corner-ornament corner-top-right"></div>
+                  <div class="page-corner-ornament corner-bottom-left"></div>
+                  <div class="page-corner-ornament corner-bottom-right"></div>
+
+                  <div class="spine-gutter-shadow gutter-right"></div>
+                  <div class="page-inner" id="pageContentSpread1Right"></div>
+                </div>
+              </div>
+              <div class="dynamic-leaf-shadow" id="leaf1ShadowFront"></div>
+            </div>
+
+            <!-- Back Face: Spread 2, Left Page ("Our Teachers") -->
+            <div class="leaf-face leaf-back">
+              <div class="page-paper page-paper-left">
+                <div class="page-border-inset">
+                  <div class="page-corner-ornament corner-top-left"></div>
+                  <div class="page-corner-ornament corner-top-right"></div>
+                  <div class="page-corner-ornament corner-bottom-left"></div>
+                  <div class="page-corner-ornament corner-bottom-right"></div>
+
+                  <div class="spine-gutter-shadow gutter-left"></div>
+                  <div class="page-inner" id="pageContentSpread2Left"></div>
+                </div>
+              </div>
+              <div class="dynamic-leaf-shadow" id="leaf1ShadowBack"></div>
+            </div>
+          </div>
+
+          <!-- ══════ TURNING COVER LEAF: (Front Cover / Spread 1 Left) ══════ -->
+          <div class="turning-leaf leaf-layer-cover" id="coverLeaf">
+            <div class="leaf-curl-wrapper" id="leafCurlWrapper">
+              <!-- Front Face: Hardcover with Leather Texture & Gold Foil -->
+              <div class="leaf-face leaf-front">
+                <div class="cover-leather">
+                  <div class="cover-specular-highlight"></div>
+                  <div class="cover-frame">
+                    <div class="cover-corner corner-tl"></div>
+                    <div class="cover-corner corner-tr"></div>
+                    <div class="cover-corner corner-bl"></div>
+                    <div class="cover-corner corner-br"></div>
+
+                    <div class="cover-crest">⚜️</div>
+                    <h1 class="academy-title" id="academyTitle"></h1>
+                    <p class="academy-tagline" id="academyTagline"></p>
+                  </div>
+                </div>
+                <div class="dynamic-leaf-shadow" id="leafShadowFront"></div>
+              </div>
+
+              <!-- Back Face: Spread 1, Left Page ("The Academy Codex" Intro) -->
+              <div class="leaf-face leaf-back">
+                <div class="page-paper page-paper-left">
+                  <div class="page-border-inset">
+                    <div class="page-corner-ornament corner-top-left"></div>
+                    <div class="page-corner-ornament corner-top-right"></div>
+                    <div class="page-corner-ornament corner-bottom-left"></div>
+                    <div class="page-corner-ornament corner-bottom-right"></div>
+
+                    <div class="spine-gutter-shadow gutter-left"></div>
+                    <div class="page-inner" id="pageContentSpread1Left"></div>
+                  </div>
+                </div>
+                <div class="dynamic-leaf-shadow" id="leafShadowBack"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════ BACK COVER (Rear face, pre-rotated 180deg, shows when book turns) ══════ -->
+          <div class="book-back-cover" id="bookBackCover">
+            <div class="back-cover-leather">
+              <div class="back-cover-highlight"></div>
+              <div class="back-cover-frame">
+                <div class="cover-corner corner-tl"></div>
+                <div class="cover-corner corner-tr"></div>
+                <div class="cover-corner corner-bl"></div>
+                <div class="cover-corner corner-br"></div>
+
+                <div class="back-emblem">🏆</div>
+                <h2 class="back-title">THE CODEX CONCLUDES</h2>
+                <p class="back-subtitle">Your journey of infinite mastery begins here.</p>
+
+                <div class="back-charter">
+                  <div class="charter-crest">🏛️</div>
+                  <span class="charter-title">KHATTAK ACADEMY CHARTER</span>
+                  <p class="charter-body">
+                    "Awarded to the persistent explorer who turned through each folio of knowledge with unrelenting determination."
+                  </p>
+                  <div class="charter-signatures">
+                    <div class="charter-sig">
+                      <span class="sig-name">Dr. Ahmed Khattak</span>
+                      <small class="sig-role">Chancellor</small>
+                    </div>
+                    <div class="charter-seal">★ OFFICIAL SEAL ★</div>
+                    <div class="charter-sig">
+                      <span class="sig-name">Sarah Al-Rashid</span>
+                      <small class="sig-role">Dean of Faculty</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="back-cover-cursive" id="backCoverCursive"></div>
+                <div class="back-actions">
+                  <button id="btnRestartCodex" class="back-action-btn">
+                    <span>↺ RETURN TO BEGINNING</span>
+                  </button>
+                  <span class="back-contact-text">Admissions &amp; Registrar: info@khattakacademy.edu</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Virtual Scroll Track (Scrubbed height) -->
+    <div class="scroll-track" id="scrollTrack"></div>
+
+    <!-- Small Footer at the end of the codex -->
+    <footer class="codex-footer" id="codexFooter">
+      <div class="footer-content">
+        <span class="footer-brand">🏛️ Khattak Academy &bull; Est. 2024</span>
+        <span class="footer-copy">&copy; 2026 Khattak Academy. All Rights Reserved. Veritas &bull; Sapientia &bull; Innovatio.</span>
+      </div>
+    </footer>
+
+    <!-- Three.js importmap (pinned version 0.160) -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+    <!-- GSAP & ScrollTrigger from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
